@@ -16,9 +16,38 @@ export class AdminsService {
     private readonly jwtService: JwtService
   ) { }
 
-  async create(adminData: Admin) {
-    const admin = this.adminRepository.create(adminData);
-    return await this.adminRepository.save(admin);
+
+  // metodo para verificar se o email existe
+  async checkIfEmailExists(email: string): Promise<boolean> {
+    const admin = await this.adminRepository.findOne({ where: { email } });
+    return !!admin; // Retorna true se o email existir
+  }
+
+
+  async create(adminData: Admin): Promise<{ message: string, admin?: Admin }> {
+
+    try {
+      const admin = this.adminRepository.create(adminData);
+
+      const emailExists = await this.checkIfEmailExists(admin.email);
+
+
+      if (emailExists) {
+        return {
+          message: 'Email já existe.'
+        }
+      }
+
+
+      const savedAdmin = await this.adminRepository.save(admin);
+      return {
+        message: `Admin criado com sucesso `,
+        admin: savedAdmin
+      }
+    } catch (error) {
+      throw new NotFoundException(`Erro na rota de Cadastrar admins. ${error.message}`);
+    }
+
   }
 
 
@@ -34,7 +63,6 @@ export class AdminsService {
     }
 
     const token = this.jwtService.sign({ id: admin.id, email: admin.email });
-    console.log(token);
 
     return { token };
   }
@@ -45,8 +73,8 @@ export class AdminsService {
   }
 
   async findOne(id: number) {
-    const admin = await this.adminRepository.findOne({ where: { id } });
-    console.log(id);
+    const admin = await this.adminRepository.findOne({ where: { id } })
+
 
     if (!admin) {
       throw new NotFoundException(`Admin com ID ${id} não encontrado.`);

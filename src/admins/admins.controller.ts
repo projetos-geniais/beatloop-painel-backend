@@ -6,10 +6,12 @@ import { Admin } from './entities/admin.entity';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('admins')
+
 export class AdminsController {
   constructor(private readonly adminsService: AdminsService) { }
 
-  @Post('111222333444555666777888111000')
+  @Post('register')
+  @UseGuards(JwtAuthGuard)
   create(@Body() adminData: Admin) {
     return this.adminsService.create(adminData);
   }

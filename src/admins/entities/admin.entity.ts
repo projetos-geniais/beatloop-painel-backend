@@ -1,6 +1,7 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn, Repository } from "typeorm";
 import * as bcrypt from 'bcrypt';
 import { IsNotEmpty } from "class-validator";
+import { InjectRepository } from "@nestjs/typeorm";
 
 
 @Entity('admins')
@@ -20,4 +21,5 @@ export class Admin {
     async hashSenha() {
         this.senha = await bcrypt.hash(this.senha, 10); // Criptografa antes de salvar
     }
+
 }
