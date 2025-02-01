@@ -1,14 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, UseGuards } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { Usuario } from './entities/usuario.entity';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('usuarios')
 export class UsuariosController {
   constructor(private readonly usuariosService: UsuariosService) { }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   create(@Body() createUsuario: Usuario) {
 
     try {
@@ -19,28 +21,31 @@ export class UsuariosController {
         throw new HttpException(`O campo ${error.column} é obrigatório`, HttpStatus.BAD_REQUEST);
       }
       // Erro genérico
-      throw new HttpException('Erro ao cadastrar música', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Erro ao cadastrar Usuário', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   findAll() {
     return this.usuariosService.findAll();
   }
 
-  @Get(':id')
+  @Get(':id') @UseGuards(JwtAuthGuard)
   findOne(@Param('id') id: string) {
     return this.usuariosService.findOne(+id);
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   update(@Param('id') id: string, @Body() updateUsuario: Usuario) {
     return this.usuariosService.update(+id, updateUsuario);
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string) {
     return this.usuariosService.remove(+id);
   }
